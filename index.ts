@@ -1,5 +1,8 @@
 import express, { Express, Request, Response } from 'express'
 import dotenv from 'dotenv'
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
 
 dotenv.config()
 
@@ -15,13 +18,25 @@ app.use(express.urlencoded({ extended: true }))
 app.use('/static', express.static('assets'))
 
 
-// basic initial route
-app.get('/', (req: Request, res: Response) => {
+async function main() {
 
-    return res.json({ msg: 'Project initialized' })
+    // basic initial route
+    app.get('/', async (req: Request, res: Response) => {
 
-})
+        const users = await prisma.users.findMany()
+        return res.json(users)
 
-app.listen(PORT, () =>
-    console.log(`⚡️ Server running on http://localhost:${PORT}`)
-)
+    })
+
+    app.listen(PORT, () =>
+        console.log(`⚡️ Server running on http://localhost:${PORT}`)
+    )
+}
+
+main()
+    .catch((err) =>
+        console.error(err)
+    )
+    .finally(() =>
+        prisma.$disconnect()
+    )
