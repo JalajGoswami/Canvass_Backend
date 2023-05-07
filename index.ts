@@ -1,8 +1,6 @@
 import express, { Express, Request, Response } from 'express'
 import dotenv from 'dotenv'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import db from './prisma/db'
 
 dotenv.config()
 
@@ -30,5 +28,5 @@ main()
         console.error(err)
     )
     .finally(() =>
-        prisma.$disconnect()
+        db.$disconnect()
     )
