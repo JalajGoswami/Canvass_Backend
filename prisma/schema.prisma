@@ -7,8 +7,54 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Users {
-  id    BigInt @id @default(autoincrement())
-  email String @unique
-  name  String
+model User {
+  id           BigInt         @id @default(autoincrement())
+  email        String         @unique
+  user_name    String         @unique
+  full_name    String
+  password     String
+  pofile_pic   String?
+  about        String?
+  website      String?
+  private      Boolean        @default(false)
+  created_at   DateTime       @default(now())
+  createdPosts Post[]         @relation("CreatedPosts")
+  savedPosts   Post[]
+  prefrence    UserPrefrence?
+}
+
+model Post {
+  id         BigInt   @id @default(autoincrement())
+  author     User     @relation("CreatedPosts", fields: [authorId], references: [id])
+  authorId   BigInt
+  body       String
+  image      String?
+  savedBy    User[]
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId BigInt
+  tags       Tag[]
+}
+
+model UserPrefrence {
+  id         BigInt     @id @default(autoincrement())
+  user       User       @relation(fields: [userId], references: [id])
+  userId     BigInt     @unique
+  categories Category[]
+}
+
+model Category {
+  id         BigInt          @id @default(autoincrement())
+  name       String
+  image      String
+  tags       Tag[]
+  Post       Post[]
+  preferredBy UserPrefrence[]
+}
+
+model Tag {
+  id         BigInt     @id @default(autoincrement())
+  name       String
+  categories Category[]
+  posts      Post[]
+  appearance BigInt     @default(0)
 }

@@ -20,14 +20,6 @@ app.use('/static', express.static('assets'))
 
 async function main() {
 
-    // basic initial route
-    app.get('/', async (req: Request, res: Response) => {
-
-        const users = await prisma.users.findMany()
-        return res.json(users)
-
-    })
-
     app.listen(PORT, () =>
         console.log(`⚡️ Server running on http://localhost:${PORT}`)
     )
