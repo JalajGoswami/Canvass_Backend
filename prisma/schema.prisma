@@ -7,8 +7,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model EmailAddress {
+  email             String  @id @unique
+  verification_code String
+  isVerified        Boolean @default(false)
+  user              User?
+}
+
 model User {
   id           Int            @id @default(sequence())
+  emailAddr    EmailAddress   @relation(fields: [email], references: [email])
   email        String         @unique
   user_name    String         @unique
   full_name    String
