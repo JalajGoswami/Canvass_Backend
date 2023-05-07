@@ -8,9 +8,11 @@ export async function sendMail(mailOptions: Partial<SendMailOptions>) {
         process.env.GMAIL_CLIENT_SECRET,
         process.env.GMAIL_REDIRECT_URI
     )
+
     oAuth2Client.setCredentials({
         refresh_token: process.env.GMAIL_REFRESH_TOKEN
     })
+
     const accessToken = await oAuth2Client.getAccessToken()
 
     const mailer = Mailer.createTransport({
