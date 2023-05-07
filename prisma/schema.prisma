@@ -9,7 +9,7 @@ datasource db {
 
 model EmailAddress {
   email             String  @id @unique
-  verification_code String
+  verification_code Int
   isVerified        Boolean @default(false)
   user              User?
 }

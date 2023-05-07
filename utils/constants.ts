@@ -1,4 +1,4 @@
-export const VerificationMailTemplate = (code: string) => ({
+export const VerificationMailTemplate = (code: number) => ({
     text: 'Thank you for enrolling 😊\n\n' +
         'Your Verification Code : ' + code + '\n'
         + 'Paste this in the app to Proceed the Signup process.',
