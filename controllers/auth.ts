@@ -1,15 +1,16 @@
 import { Request, Response } from 'express'
 import { sendMail } from '../services/mail'
 import crypto from 'crypto'
-import { verifyEmailSchema } from '../schemas/auth'
+import { verifyCodeSchema, verifyEmailSchema } from '../schemas/auth'
 import { VerificationMailTemplate } from '../utils/constants'
 import db from '../prisma/db'
+import { getError } from '../services/errorHandlers'
 
 export async function verifyEmail(req: Request, res: Response) {
     try {
-        verifyEmailSchema.validateSync(req.body)
+        const body = verifyEmailSchema.validateSync(req.body)
 
-        const { email } = req.body
+        const { email } = body
         const verification_code = crypto.randomInt(Math.pow(10, 5), Math.pow(10, 6))
 
         const entry = await db.emailAddress.findFirst({ where: { email } })
@@ -32,8 +33,24 @@ export async function verifyEmail(req: Request, res: Response) {
         return res.json({ msg: 'Verification mail sent' })
     }
     catch (err) {
-        let error = err as any
-        error = error?.message ?? error?.name ?? error
+        const error = getError(err)
+        return res.status(400).json({ error })
+    }
+}
+
+export async function verifyCode(req: Request, res: Response) {
+    try {
+        const body = verifyCodeSchema.validateSync(req.body)
+
+        const { email, code } = body
+        const entry = await db.emailAddress.findFirst({ where: { email } })
+
+        return res.json({
+            verified: Boolean(entry && entry.verification_code === code)
+        })
+    }
+    catch (err) {
+        const error = getError(err)
         return res.status(400).json({ error })
     }
 }

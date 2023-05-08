@@ -5,3 +5,12 @@ export const verifyEmailSchema = Yup.object({
         .email('Not a valid Email')
         .required('Email is required')
 })
+
+export const verifyCodeSchema = Yup.object({
+    email: Yup.string()
+        .email('Not a valid Email')
+        .required('Email is required'),
+    code: Yup.number()
+        .integer('Code must be number')
+        .required('Code is required')
+})
