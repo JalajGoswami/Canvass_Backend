@@ -1,11 +1,11 @@
 import { Router } from 'express'
 import {
-    getProfile
+    createProfile
 } from '../controllers/user'
 
 const router = Router()
 
-router.get('/get-profile', getProfile)
+router.get('/create-profile', createProfile)
 
 
 export default router

@@ -45,9 +45,14 @@ export async function verifyCode(req: Request, res: Response) {
         const { email, code } = body
         const entry = await db.emailAddress.findFirst({ where: { email } })
 
-        return res.json({
-            verified: Boolean(entry && entry.verification_code === code)
-        })
+        const verified = Boolean(entry && entry.verification_code === code)
+        if (verified)
+            db.emailAddress.update({
+                where: { email },
+                data: { isVerified: true }
+            })
+        
+        return res.json({ verified })
     }
     catch (err) {
         const error = getError(err)
