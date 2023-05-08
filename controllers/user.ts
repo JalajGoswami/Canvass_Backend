@@ -29,8 +29,21 @@ export async function createProfile(req: Request, res: Response) {
         return res.json(data)
     }
     catch (err) {
-        console.log(err)
         const error = getError(err)
         return res.status(400).json({ error })
     }
+}
+
+export async function checkUserName(req: Request, res: Response) {
+    const { user_name } = req.query
+
+    if (!user_name)
+        return res.status(400)
+            .json({ error: 'user_name required' })
+
+    const existingUser = await db.user.findFirst({
+        where: { user_name: user_name as string }
+    })
+
+    return res.json({ exist: Boolean(existingUser) })
 }
