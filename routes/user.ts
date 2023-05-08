@@ -5,7 +5,7 @@ import {
 
 const router = Router()
 
-router.get('/create-profile', createProfile)
+router.post('/create-profile', createProfile)
 
 
 export default router

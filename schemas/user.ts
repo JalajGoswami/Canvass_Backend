@@ -7,7 +7,7 @@ export const createProfileSchema = Yup.object({
     user_name: Yup.string()
         .required('UserName is required')
         .min(3, 'UserName too short')
-        .lowercase('UserName must be lowercase')
+        .lowercase('UserName must be lowercase').strict()
         .matches(/^\S+$/, 'UserName have spaces'),
     full_name: Yup.string()
         .required('FullName is required')

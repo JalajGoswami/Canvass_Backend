@@ -1,5 +1,5 @@
 export function getError(err: unknown) {
     let error = err as any
-    error = error?.message ?? error
+    error = error?.meta?.cause ?? error?.message ?? error
     return error
 }

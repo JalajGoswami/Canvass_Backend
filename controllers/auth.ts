@@ -9,8 +9,16 @@ import { getError } from '../services/errorHandlers'
 export async function verifyEmail(req: Request, res: Response) {
     try {
         const body = verifyEmailSchema.validateSync(req.body)
-
         const { email } = body
+
+        const existingUser = await db.user.findFirst({
+            where: { email }
+        })
+
+        if (existingUser)
+            return res.status(400)
+                .json({ error: 'User exist with this email' })
+        
         const verification_code = crypto.randomInt(Math.pow(10, 5), Math.pow(10, 6))
 
         const entry = await db.emailAddress.findFirst({ where: { email } })
@@ -47,11 +55,11 @@ export async function verifyCode(req: Request, res: Response) {
 
         const verified = Boolean(entry && entry.verification_code === code)
         if (verified)
-            db.emailAddress.update({
+            await db.emailAddress.update({
                 where: { email },
                 data: { isVerified: true }
             })
-        
+
         return res.json({ verified })
     }
     catch (err) {
