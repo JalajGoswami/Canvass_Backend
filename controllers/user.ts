@@ -9,6 +9,11 @@ export async function createProfile(req: Request, res: Response) {
         const body = createProfileSchema.validateSync(req.body)
         const { confirm_password: _, ...fields } = body
 
+        let profile_pic: string | undefined = undefined
+        if (req.file) {
+            profile_pic = await uploadFile(req.file.path, req.file.filename, 'images')
+        }
+
         const emailAddr = await db.emailAddress.findFirst({
             where: { email: body.email }
         })
@@ -25,7 +30,9 @@ export async function createProfile(req: Request, res: Response) {
             return res.status(400)
                 .json({ error: 'User exist with this email' })
 
-        const data = await db.user.create({ data: fields })
+        const data = await db.user.create({
+            data: { ...fields, profile_pic }
+        })
 
         return res.json(data)
     }
@@ -47,17 +54,4 @@ export async function checkUserName(req: Request, res: Response) {
     })
 
     return res.json({ exist: Boolean(existingUser) })
-}
-
-
-export async function test(req: Request, res: Response) {
-    try {
-        if (!req.file) return res.status(400).json({ error: 'No file' });
-        const url = await uploadFile(req.file.path, req.file.filename, 'images')
-        return res.json({ url })
-    }
-    catch (err) {
-        console.log(err)
-        return res.json({ err })
-    }
 }

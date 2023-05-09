@@ -18,7 +18,7 @@ const storage = multer.diskStorage({
     }
 })
 
-export const saveLocally = multer({ storage })
+export const saveFile = multer({ storage })
 
 export async function uploadFile(
     filePath: string, fileName: string, folderName: string
