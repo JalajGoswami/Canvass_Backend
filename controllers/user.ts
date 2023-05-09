@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import db from '../prisma/db'
 import { createProfileSchema } from '../schemas/user'
 import { getError } from '../services/errorHandlers'
+import { uploadFile } from '../services/cloudStorage'
 
 export async function createProfile(req: Request, res: Response) {
     try {
@@ -46,4 +47,17 @@ export async function checkUserName(req: Request, res: Response) {
     })
 
     return res.json({ exist: Boolean(existingUser) })
+}
+
+
+export async function test(req: Request, res: Response) {
+    try {
+        if (!req.file) return res.status(400).json({ error: 'No file' });
+        const url = await uploadFile(req.file.path, req.file.filename, 'images')
+        return res.json({ url })
+    }
+    catch (err) {
+        console.log(err)
+        return res.json({ err })
+    }
 }
