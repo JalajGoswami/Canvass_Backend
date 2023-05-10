@@ -12,6 +12,6 @@ router.post(
     saveFile.single('profile_pic'), createProfile
 )
 router.get('/check-user-name', checkUserName)
-
+// router.profile
 
 export default router

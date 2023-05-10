@@ -21,4 +21,4 @@ export const createProfileSchema = Yup.object({
         .required('ConfirmPassword is required'),
     about: Yup.string()
         .max(200, 'About exceed 200char')
-})
+}).noUnknown()
