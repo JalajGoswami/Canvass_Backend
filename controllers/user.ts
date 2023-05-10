@@ -12,7 +12,7 @@ export async function createProfile(req: Request, res: Response) {
 
         // hashing password
         fields.password = crypto.createHmac('sha256',
-            Buffer.from(process.env.HASH_SECRET ?? "secret"))
+            process.env.HASH_SECRET ?? "secret")
             .update(fields.password).digest('base64')
 
         let profile_pic: string | undefined = undefined
@@ -27,16 +27,14 @@ export async function createProfile(req: Request, res: Response) {
         })
 
         if (!emailAddr?.isVerified)
-            return res.status(400)
-                .json({ error: 'Email not verified' })
+            throw Error('Email not verified')
 
         const existingUser = await db.user.findFirst({
             where: { email: body.email }
         })
 
         if (existingUser)
-            return res.status(400)
-                .json({ error: 'User exist with this email' })
+            throw Error('User exist with this email')
 
         const data = await db.user.create({
             data: { ...fields, profile_pic }
@@ -66,11 +64,11 @@ export async function checkUserName(req: Request, res: Response) {
 
 export async function updateProfile(req: Request, res: Response) {
     const { id } = req.params
-
-    if (!id || isNaN(Number(id)))
-        return res.status(400).json({ error: 'Provide valid id' })
-
     try {
+
+        if (!id || isNaN(Number(id)))
+            throw Error('Provide valid id')
+
         const body = updateProfileSchema.validateSync(req.body)
 
         let profile_pic: string | undefined = undefined

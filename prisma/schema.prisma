@@ -21,7 +21,7 @@ model User {
   user_name    String         @unique
   full_name    String
   password     String
-  profile_pic   String?
+  profile_pic  String?
   about        String?
   website      String?
   private      Boolean        @default(false)

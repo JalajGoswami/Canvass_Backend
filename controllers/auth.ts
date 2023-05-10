@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { sendMail } from '../services/mail'
 import crypto from 'crypto'
-import { verifyCodeSchema, verifyEmailSchema } from '../schemas/auth'
+import { loginSchema, verifyCodeSchema, verifyEmailSchema } from '../schemas/auth'
 import { VerificationMailTemplate } from '../utils/constants'
 import db from '../prisma/db'
 import { getError } from '../services/errorHandlers'
@@ -16,9 +16,8 @@ export async function verifyEmail(req: Request, res: Response) {
         })
 
         if (existingUser)
-            return res.status(400)
-                .json({ error: 'User exist with this email' })
-        
+            throw Error('User exist with this email')
+
         const verification_code = crypto.randomInt(Math.pow(10, 5), Math.pow(10, 6))
 
         const entry = await db.emailAddress.findFirst({ where: { email } })
@@ -61,6 +60,32 @@ export async function verifyCode(req: Request, res: Response) {
             })
 
         return res.json({ verified })
+    }
+    catch (err) {
+        const error = getError(err)
+        return res.status(400).json({ error })
+    }
+}
+
+export async function login(req: Request, res: Response) {
+    try {
+        const { email, password } = loginSchema.validateSync(req.body)
+
+        const user = await db.user.findFirst({
+            where: { email }
+        })
+
+        if (!user)
+            throw Error('User not exist')
+
+        const hash = crypto.createHmac('sha256',
+            process.env.HASH_SECRET ?? "secret")
+            .update(password).digest('base64')
+
+        if (hash != user.password)
+            throw Error('Incorrect Password !')
+        
+        return res.json(user)
     }
     catch (err) {
         const error = getError(err)

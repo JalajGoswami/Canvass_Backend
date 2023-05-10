@@ -14,3 +14,11 @@ export const verifyCodeSchema = Yup.object({
         .integer('Code must be number')
         .required('Code is required')
 }).noUnknown()
+
+export const loginSchema = Yup.object({
+    email: Yup.string()
+        .email('Not a valid Email')
+        .required('Email is required'),
+    password: Yup.string()
+        .required('Password is required')
+}).noUnknown()
