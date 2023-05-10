@@ -13,7 +13,7 @@ const storage = multer.diskStorage({
     },
     filename: function (req, file, cb) {
         const time = moment().format('DD-MMM-YYYY_hh.mma_')
-        const name = file.originalname.replace(/ /g, '_')
+        const name = file.originalname.replace(/ /g, '_').slice(-20)
         cb(null, (time + name))
     }
 })

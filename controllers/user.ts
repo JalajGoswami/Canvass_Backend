@@ -3,15 +3,23 @@ import db from '../prisma/db'
 import { createProfileSchema } from '../schemas/user'
 import { getError } from '../services/errorHandlers'
 import { uploadFile } from '../services/cloudStorage'
+import crypto from 'crypto'
 
 export async function createProfile(req: Request, res: Response) {
     try {
         const body = createProfileSchema.validateSync(req.body)
         const { confirm_password: _, ...fields } = body
 
+        // hashing password
+        fields.password = crypto.createHmac('sha256',
+            Buffer.from(process.env.HASH_SECRET ?? "secret"))
+            .update(fields.password).digest('base64')
+
         let profile_pic: string | undefined = undefined
         if (req.file) {
-            profile_pic = await uploadFile(req.file.path, req.file.filename, 'images')
+            profile_pic = await uploadFile(
+                req.file.path, req.file.filename, 'images'
+            )
         }
 
         const emailAddr = await db.emailAddress.findFirst({
