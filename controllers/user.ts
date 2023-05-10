@@ -1,8 +1,8 @@
 import { Request, Response } from 'express'
 import db from '../prisma/db'
-import { createProfileSchema } from '../schemas/user'
+import { createProfileSchema, updateProfileSchema } from '../schemas/user'
 import { getError } from '../services/errorHandlers'
-import { uploadFile } from '../services/cloudStorage'
+import { deleteFile, uploadFile } from '../services/cloudStorage'
 import crypto from 'crypto'
 
 export async function createProfile(req: Request, res: Response) {
@@ -62,4 +62,42 @@ export async function checkUserName(req: Request, res: Response) {
     })
 
     return res.json({ exist: Boolean(existingUser) })
+}
+
+export async function updateProfile(req: Request, res: Response) {
+    const { id } = req.params
+
+    if (!id || isNaN(Number(id)))
+        return res.status(400).json({ error: 'Provide valid id' })
+
+    try {
+        const body = updateProfileSchema.validateSync(req.body)
+
+        let profile_pic: string | undefined = undefined
+        if (req.file) {
+            const old_pic = await db.user.findFirst({
+                where: { id: Number(id) },
+                select: { profile_pic: true }
+            })
+            // deleting old one
+            if (old_pic?.profile_pic)
+                await deleteFile(old_pic.profile_pic)
+
+            // uploading new one
+            profile_pic = await uploadFile(
+                req.file.path, req.file.filename, 'images'
+            )
+        }
+
+        const data = await db.user.update({
+            where: { id: Number(id) },
+            data: { ...body, profile_pic }
+        })
+
+        return res.json(data)
+    }
+    catch (err) {
+        const error = getError(err)
+        return res.status(400).json({ error })
+    }
 }

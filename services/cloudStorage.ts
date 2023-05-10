@@ -13,22 +13,23 @@ const storage = multer.diskStorage({
     },
     filename: function (req, file, cb) {
         const time = moment().format('DD-MMM-YYYY_hh.mma_')
-        const name = file.originalname.replace(/ /g, '_').slice(-20)
+        const name = file.originalname
+            .replace(/\s|\/|\\/g, '_').slice(-20)
         cb(null, (time + name))
     }
 })
 
 export const saveFile = multer({ storage })
 
+cloudinary.config({
+    cloud_name: process.env.STORAGE_NAME,
+    api_key: process.env.STORAGE_KEY,
+    api_secret: process.env.STORAGE_SECRET,
+})
+
 export async function uploadFile(
     filePath: string, fileName: string, folderName: string
 ) {
-    cloudinary.config({
-        cloud_name: process.env.STORAGE_NAME,
-        api_key: process.env.STORAGE_KEY,
-        api_secret: process.env.STORAGE_SECRET,
-    })
-
     const splitted = fileName.split('.')
     splitted.pop()
     const public_id = splitted.join('.')
@@ -47,4 +48,14 @@ async function createTmpDir() {
 
     if (!exist)
         await fs.mkdir(tmpDirPath)
+}
+
+export async function deleteFile(url: string) {
+    const path = url.split('/').slice(-2).join('/')
+    if (path) {
+        const splitted = path.split('.')
+        splitted.pop()
+        const public_id = splitted.join('.')
+        await cloudinary.uploader.destroy(public_id)
+    }
 }

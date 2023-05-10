@@ -22,3 +22,17 @@ export const createProfileSchema = Yup.object({
     about: Yup.string()
         .max(200, 'About exceed 200char')
 }).noUnknown()
+
+export const updateProfileSchema = Yup.object({
+    user_name: Yup.string()
+        .min(3, 'UserName too short')
+        .lowercase('UserName must be lowercase').strict()
+        .matches(/^\S+$/, 'UserName have spaces'),
+    full_name: Yup.string()
+        .min(3, 'FullName too short'),
+    about: Yup.string()
+        .max(200, 'About exceed 200char'),
+    website: Yup.string()
+        .url('Not a valid url'),
+    private: Yup.boolean()
+}).noUnknown()

@@ -1,7 +1,8 @@
 import { Router } from 'express'
 import {
     checkUserName,
-    createProfile
+    createProfile,
+    updateProfile
 } from '../controllers/user'
 import { saveFile } from '../services/cloudStorage'
 
@@ -12,6 +13,8 @@ router.post(
     saveFile.single('profile_pic'), createProfile
 )
 router.get('/check-user-name', checkUserName)
-// router.profile
+router.patch('/update-profile/:id',
+    saveFile.single('profile_pic'), updateProfile
+)
 
 export default router
