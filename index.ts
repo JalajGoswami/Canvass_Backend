@@ -2,6 +2,7 @@ import express, { Express } from 'express'
 import dotenv from 'dotenv'
 import db from './prisma/db'
 import router from './routes'
+import session from './middlewares/session'
 
 dotenv.config()
 
@@ -18,6 +19,8 @@ async function main() {
     // static file serving
     app.use('/static', express.static('assets'))
 
+    // session manager middleware
+    app.use(session)
 
     // router setup
     app.use('/', router)
