@@ -5,6 +5,10 @@ import { loginSchema, verifyCodeSchema, verifyEmailSchema } from '../schemas/aut
 import { VerificationMailTemplate } from '../utils/constants'
 import db from '../prisma/db'
 import { getError } from '../services/errorHandlers'
+import jwt from 'jsonwebtoken'
+import { User } from '@prisma/client'
+
+type UserResult = Partial<User> | null
 
 export async function verifyEmail(req: Request, res: Response) {
     try {
@@ -71,7 +75,7 @@ export async function login(req: Request, res: Response) {
     try {
         const { email, password } = loginSchema.validateSync(req.body)
 
-        const user = await db.user.findFirst({
+        const user: UserResult = await db.user.findFirst({
             where: { email }
         })
 
@@ -84,8 +88,15 @@ export async function login(req: Request, res: Response) {
 
         if (hash != user.password)
             throw Error('Incorrect Password !')
+
+        delete user.password
         
-        return res.json(user)
+        const accessToken = jwt.sign(
+            { id: user.id, email },
+            process.env.HASH_SECRET ?? 'secret'
+        )
+
+        return res.json({ accessToken, user })
     }
     catch (err) {
         const error = getError(err)

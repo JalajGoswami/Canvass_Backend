@@ -4,6 +4,9 @@ import { createProfileSchema, updateProfileSchema } from '../schemas/user'
 import { getError } from '../services/errorHandlers'
 import { deleteFile, uploadFile } from '../services/cloudStorage'
 import crypto from 'crypto'
+import { User } from '@prisma/client'
+
+type UserResult = Partial<User> | null
 
 export async function createProfile(req: Request, res: Response) {
     try {
@@ -36,9 +39,11 @@ export async function createProfile(req: Request, res: Response) {
         if (existingUser)
             throw Error('User exist with this email')
 
-        const data = await db.user.create({
+        const data: UserResult = await db.user.create({
             data: { ...fields, profile_pic }
         })
+
+        delete data.password
 
         return res.json(data)
     }
@@ -87,10 +92,12 @@ export async function updateProfile(req: Request, res: Response) {
             )
         }
 
-        const data = await db.user.update({
+        const data: UserResult = await db.user.update({
             where: { id: Number(id) },
             data: { ...body, profile_pic }
         })
+
+        delete data.password
 
         return res.json(data)
     }
