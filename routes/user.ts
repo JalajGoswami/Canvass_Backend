@@ -5,6 +5,7 @@ import {
     updateProfile
 } from '../controllers/user'
 import { saveFile } from '../services/cloudStorage'
+import { sessionRequired } from '../middlewares/session'
 
 const router = Router()
 
@@ -13,7 +14,8 @@ router.post(
     saveFile.single('profile_pic'), createProfile
 )
 router.get('/check-user-name', checkUserName)
-router.patch('/update-profile/:id',
+router.patch(
+    '/update-profile', sessionRequired,
     saveFile.single('profile_pic'), updateProfile
 )
 

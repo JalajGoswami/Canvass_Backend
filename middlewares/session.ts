@@ -2,6 +2,7 @@ import { Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 import ExtendedRequest from '../types/ExtendedRequest'
 import db from '../prisma/db'
+import { getError } from '../services/errorHandlers'
 
 export default async function session(
     req: ExtendedRequest, res: Response, next: NextFunction
@@ -41,5 +42,23 @@ export default async function session(
     catch (err) {
         req.sessionError = Error('Token is not valid')
         next()
+    }
+}
+
+export async function sessionRequired(
+    req: ExtendedRequest, res: Response, next: NextFunction
+) {
+    try {
+        if (!req.session) {
+            if (req.sessionError)
+                throw req.sessionError
+            else
+                throw Error('Error occured while validating User')
+        }
+        next()
+    }
+    catch (err) {
+        const error = getError(err)
+        res.status(401).json({ error })
     }
 }

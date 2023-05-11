@@ -5,6 +5,7 @@ import { getError } from '../services/errorHandlers'
 import { deleteFile, uploadFile } from '../services/cloudStorage'
 import crypto from 'crypto'
 import { User } from '@prisma/client'
+import ExtendedRequest from '../types/ExtendedRequest'
 
 type UserResult = Partial<User> | null
 
@@ -67,19 +68,18 @@ export async function checkUserName(req: Request, res: Response) {
     return res.json({ exist: Boolean(existingUser) })
 }
 
-export async function updateProfile(req: Request, res: Response) {
-    const { id } = req.params
+export async function updateProfile(req: ExtendedRequest, res: Response) {
     try {
+        const { id } = req.session as User
 
-        if (!id || isNaN(Number(id)))
-            throw Error('Provide valid id')
+        if (!id) throw Error('Provide valid id')
 
         const body = updateProfileSchema.validateSync(req.body)
 
         let profile_pic: string | undefined = undefined
         if (req.file) {
             const old_pic = await db.user.findFirst({
-                where: { id: Number(id) },
+                where: { id },
                 select: { profile_pic: true }
             })
             // deleting old one
@@ -93,7 +93,7 @@ export async function updateProfile(req: Request, res: Response) {
         }
 
         const data: UserResult = await db.user.update({
-            where: { id: Number(id) },
+            where: { id },
             data: { ...body, profile_pic }
         })
 
