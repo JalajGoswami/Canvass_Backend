@@ -51,7 +51,6 @@ model UserPrefrence {
   id         Int        @id @default(sequence())
   user       User       @relation(fields: [userId], references: [id])
   userId     Int        @unique
-  image      String?
   categories Category[]
 }
 

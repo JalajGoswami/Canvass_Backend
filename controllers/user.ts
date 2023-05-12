@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import db from '../prisma/db'
-import { createProfileSchema, updateProfileSchema } from '../schemas/user'
+import { createPrefrenceSchema, createProfileSchema, updateProfileSchema } from '../schemas/user'
 import { getError } from '../services/errorHandlers'
 import { deleteFile, uploadFile } from '../services/cloudStorage'
 import crypto from 'crypto'
@@ -98,6 +98,27 @@ export async function updateProfile(req: ExtendedRequest, res: Response) {
         })
 
         delete data.password
+
+        return res.json(data)
+    }
+    catch (err) {
+        const error = getError(err)
+        return res.status(400).json({ error })
+    }
+}
+
+export async function createPrefrence(req: Request, res: Response) {
+    try {
+        const { userId, categories } = createPrefrenceSchema.validateSync(req.body)
+        const categoryIds = categories.filter(Boolean)
+            .map(id => ({ id: id as number }))
+
+        const data = await db.userPrefrence.create({
+            data: {
+                userId,
+                categories: { connect: categoryIds }
+            }
+        })
 
         return res.json(data)
     }
