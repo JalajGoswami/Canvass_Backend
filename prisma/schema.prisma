@@ -15,20 +15,22 @@ model EmailAddress {
 }
 
 model User {
-  id           Int            @id @default(sequence())
-  emailAddr    EmailAddress   @relation(fields: [email], references: [email])
-  email        String         @unique
-  user_name    String         @unique
-  full_name    String
-  password     String
-  profile_pic  String?
-  about        String?
-  website      String?
-  private      Boolean        @default(false)
-  created_at   DateTime       @default(now())
-  createdPosts Post[]         @relation("CreatedPosts")
-  savedPosts   Post[]
-  prefrence    UserPrefrence?
+  id            Int            @id @default(sequence())
+  emailAddr     EmailAddress   @relation(fields: [email], references: [email])
+  email         String         @unique
+  user_name     String         @unique
+  full_name     String
+  password      String
+  profile_pic   String?
+  about         String?
+  website       String?
+  private       Boolean        @default(false)
+  created_at    DateTime       @default(now())
+  createdPosts  Post[]         @relation("CreatedPosts")
+  likedPosts    Post[]         @relation("LikedPosts")
+  dislikedPosts Post[]         @relation("DislikedPosts")
+  savedPosts    Post[]         @relation("SavedPosts")
+  prefrence     UserPrefrence?
 }
 
 model Post {
@@ -37,7 +39,9 @@ model Post {
   authorId   Int
   body       String
   image      String?
-  savedBy    User[]
+  likedBy    User[]   @relation("LikedPosts")
+  dislikedBy User[]   @relation("DislikedPosts")
+  savedBy    User[]   @relation("SavedPosts")
   category   Category @relation(fields: [categoryId], references: [id])
   categoryId Int
   tags       Tag[]
@@ -47,6 +51,7 @@ model UserPrefrence {
   id         Int        @id @default(sequence())
   user       User       @relation(fields: [userId], references: [id])
   userId     Int        @unique
+  image      String?
   categories Category[]
 }
 
