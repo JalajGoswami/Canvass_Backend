@@ -11,14 +11,14 @@ import { sessionRequired } from '../middlewares/session'
 const router = Router()
 
 router.post(
-    '/create-profile',
+    '/profile',
     saveFile.single('profile_pic'), createProfile
 )
-router.get('/check-user-name', checkUserName)
 router.patch(
-    '/update-profile', sessionRequired,
+    '/profile', sessionRequired,
     saveFile.single('profile_pic'), updateProfile
 )
-router.post('/create-prefrence', createPrefrence)
+router.get('/check-user-name', checkUserName)
+router.post('/prefrence', createPrefrence)
 
 export default router
