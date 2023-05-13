@@ -5,7 +5,6 @@ export const createPostSchema = Yup.object({
         .required('Body is required'),
     categoryId: Yup.number()
         .required('Topic is required'),
-    tags: Yup.array()
-        .of(Yup.number())
+    tags: Yup.string()
         .required('Tag is required')
 })

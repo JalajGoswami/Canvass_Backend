@@ -22,7 +22,7 @@ export async function createProfile(req: Request, res: Response) {
         let profile_pic: string | undefined = undefined
         if (req.file) {
             profile_pic = await uploadFile(
-                req.file.path, req.file.filename, 'images'
+                req.file.path, req.file.filename, 'profile_pics'
             )
         }
 
@@ -88,7 +88,7 @@ export async function updateProfile(req: ExtendedRequest, res: Response) {
 
             // uploading new one
             profile_pic = await uploadFile(
-                req.file.path, req.file.filename, 'images'
+                req.file.path, req.file.filename, 'profile_pics'
             )
         }
 

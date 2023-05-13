@@ -66,7 +66,7 @@ model Category {
 
 model Tag {
   id         Int        @id @default(sequence())
-  name       String
+  name       String     @unique
   categories Category[]
   posts      Post[]
   appearance Int        @default(0)
