@@ -107,6 +107,11 @@ export async function updateProfile(req: ExtendedRequest, res: Response) {
     }
 }
 
+export async function getProfile(req: ExtendedRequest, res: Response) {
+    const user = req.session as User
+    return res.json(user)
+}
+
 export async function createPrefrence(req: Request, res: Response) {
     try {
         const { userId, categories } = createPrefrenceSchema.validateSync(req.body)
