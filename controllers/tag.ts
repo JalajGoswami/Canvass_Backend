@@ -19,3 +19,25 @@ export async function updateTags(req: Request, res: Response) {
         res.status(400).json({ error })
     }
 }
+
+export async function searchTags(req: Request, res: Response) {
+    try {
+        type QueryFilters = { keyword?: string; limit?: string }
+        const { keyword, limit } = req.query as QueryFilters
+
+        if (!keyword) throw Error('Search keyword required')
+
+        const tags = await db.tag.findMany({
+            select: { id: true, name: true },
+            where: { name: { contains: keyword } },
+            orderBy: { appearance: 'desc' },
+            take: Number(limit) || 15
+        })
+
+        return res.json(tags)
+    }
+    catch (err) {
+        const error = getError(err)
+        res.status(400).json({ error })
+    }
+}

@@ -5,12 +5,10 @@ import { sessionRequired } from '../middlewares/session'
 
 const router = Router()
 
+router.use(sessionRequired)
 router.post(
-    '/', sessionRequired,
-    saveFile.single('image'), createPost
+    '/', saveFile.single('image'), createPost
 )
-router.get(
-    '/:id', sessionRequired, getPost
-)
+router.get('/:id', getPost)
 
 export default router
