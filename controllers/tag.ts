@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import db from '../prisma/db'
 import { createUpdateTags, removeDuplicateTag } from '../services/tagHelpers'
-import { getError } from '../services/errorHandlers'
+import { handleError } from '../services/errorHandlers'
 import ExtendedRequest from '../types/ExtendedRequest'
 import { User, Tag } from '@prisma/client'
 
@@ -16,10 +16,7 @@ export async function updateTags(req: Request, res: Response) {
         await createUpdateTags(body.tags, body.category)
         return res.json({ msg: 'Sucess' })
     }
-    catch (err) {
-        const error = getError(err)
-        res.status(400).json({ error })
-    }
+    catch (err) { handleError(res, err) }
 }
 
 export async function searchTags(req: Request, res: Response) {
@@ -38,10 +35,7 @@ export async function searchTags(req: Request, res: Response) {
 
         return res.json(tags)
     }
-    catch (err) {
-        const error = getError(err)
-        res.status(400).json({ error })
-    }
+    catch (err) { handleError(res, err) }
 }
 
 export async function trendingTags(req: ExtendedRequest, res: Response) {
@@ -80,8 +74,5 @@ export async function trendingTags(req: ExtendedRequest, res: Response) {
 
         return res.json(tags)
     }
-    catch (err) {
-        const error = getError(err)
-        res.status(400).json({ error })
-    }
+    catch (err) { handleError(res, err) }
 }

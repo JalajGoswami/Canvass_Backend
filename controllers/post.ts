@@ -1,6 +1,6 @@
 import { Response } from 'express'
 import db from '../prisma/db'
-import { getError } from '../services/errorHandlers'
+import { handleError } from '../services/errorHandlers'
 import { createPostSchema } from '../schemas/post'
 import ExtendedRequest from '../types/ExtendedRequest'
 import { User } from '@prisma/client'
@@ -34,10 +34,7 @@ export async function createPost(req: ExtendedRequest, res: Response) {
 
         return res.json(data)
     }
-    catch (err) {
-        const error = getError(err)
-        return res.status(400).json({ error })
-    }
+    catch (err) { handleError(res, err) }
 }
 
 export async function getPost(req: ExtendedRequest, res: Response) {
@@ -61,8 +58,5 @@ export async function getPost(req: ExtendedRequest, res: Response) {
 
         res.json(post)
     }
-    catch (err) {
-        const error = getError(err)
-        return res.status(400).json({ error })
-    }
+    catch (err) { handleError(res, err) }
 }

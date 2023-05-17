@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import db from '../prisma/db'
 import { createPrefrenceSchema, createProfileSchema, updateProfileSchema } from '../schemas/user'
-import { getError } from '../services/errorHandlers'
+import { handleError } from '../services/errorHandlers'
 import { deleteFile, uploadFile } from '../services/cloudStorage'
 import crypto from 'crypto'
 import { User } from '@prisma/client'
@@ -48,10 +48,7 @@ export async function createProfile(req: Request, res: Response) {
 
         return res.json(data)
     }
-    catch (err) {
-        const error = getError(err)
-        return res.status(400).json({ error })
-    }
+    catch (err) { handleError(res, err) }
 }
 
 export async function checkUserName(req: Request, res: Response) {
@@ -101,10 +98,7 @@ export async function updateProfile(req: ExtendedRequest, res: Response) {
 
         return res.json(data)
     }
-    catch (err) {
-        const error = getError(err)
-        return res.status(400).json({ error })
-    }
+    catch (err) { handleError(res, err) }
 }
 
 export async function getProfile(req: ExtendedRequest, res: Response) {
@@ -127,8 +121,5 @@ export async function createPrefrence(req: Request, res: Response) {
 
         return res.json(data)
     }
-    catch (err) {
-        const error = getError(err)
-        return res.status(400).json({ error })
-    }
+    catch (err) { handleError(res, err) }
 }

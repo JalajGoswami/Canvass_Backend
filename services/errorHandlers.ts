@@ -1,3 +1,5 @@
+import { Response } from 'express'
+
 export function getError(err: unknown, withStack = false) {
     let error = err as any
 
@@ -14,4 +16,9 @@ export function getError(err: unknown, withStack = false) {
     }
 
     return error
+}
+
+export function handleError(res: Response, err: unknown) {
+    const error = getError(err)
+    return res.status(400).json({ error })
 }

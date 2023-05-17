@@ -4,7 +4,7 @@ import crypto from 'crypto'
 import { loginSchema, verifyCodeSchema, verifyEmailSchema } from '../schemas/auth'
 import { VerificationMailTemplate } from '../utils/constants'
 import db from '../prisma/db'
-import { getError } from '../services/errorHandlers'
+import { handleError } from '../services/errorHandlers'
 import jwt from 'jsonwebtoken'
 import { User } from '@prisma/client'
 
@@ -43,10 +43,7 @@ export async function verifyEmail(req: Request, res: Response) {
         })
         return res.json({ msg: 'Verification mail sent' })
     }
-    catch (err) {
-        const error = getError(err)
-        return res.status(400).json({ error })
-    }
+    catch (err) { handleError(res, err) }
 }
 
 export async function verifyCode(req: Request, res: Response) {
@@ -65,10 +62,7 @@ export async function verifyCode(req: Request, res: Response) {
 
         return res.json({ verified })
     }
-    catch (err) {
-        const error = getError(err)
-        return res.status(400).json({ error })
-    }
+    catch (err) { handleError(res, err) }
 }
 
 export async function login(req: Request, res: Response) {
@@ -98,8 +92,5 @@ export async function login(req: Request, res: Response) {
 
         return res.json({ accessToken, user })
     }
-    catch (err) {
-        const error = getError(err)
-        return res.status(400).json({ error })
-    }
+    catch (err) { handleError(res, err) }
 }
