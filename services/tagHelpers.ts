@@ -1,3 +1,4 @@
+import { Tag } from '@prisma/client'
 import db from '../prisma/db'
 
 export async function createUpdateTags(tags: string[], category: number) {
@@ -44,4 +45,10 @@ export async function createUpdateTags(tags: string[], category: number) {
             }
         })
     })
+}
+
+export function removeDuplicateTag(tags: Partial<Tag>[]) {
+    return tags.filter((tag, indx) =>
+        tags.findIndex(t => t.id === tag.id) === indx
+    ).slice(0, 15)
 }
