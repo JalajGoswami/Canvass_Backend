@@ -34,18 +34,19 @@ model User {
 }
 
 model Post {
-  id         Int      @id @default(sequence())
-  author     User     @relation("CreatedPosts", fields: [authorId], references: [id])
-  authorId   Int
-  body       String
-  image      String?
-  likedBy    User[]   @relation("LikedPosts")
-  dislikedBy User[]   @relation("DislikedPosts")
-  savedBy    User[]   @relation("SavedPosts")
-  category   Category @relation(fields: [categoryId], references: [id])
-  categoryId Int
-  tags       Tag[]
-  created_at DateTime @default(now())
+  id           Int      @id @default(sequence())
+  author       User     @relation("CreatedPosts", fields: [authorId], references: [id])
+  authorId     Int
+  body         String
+  image        String?
+  aspect_ratio Float?
+  likedBy      User[]   @relation("LikedPosts")
+  dislikedBy   User[]   @relation("DislikedPosts")
+  savedBy      User[]   @relation("SavedPosts")
+  category     Category @relation(fields: [categoryId], references: [id])
+  categoryId   Int
+  tags         Tag[]
+  created_at   DateTime @default(now())
 }
 
 model UserPrefrence {

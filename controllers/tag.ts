@@ -28,7 +28,7 @@ export async function searchTags(req: Request, res: Response) {
 
         const tags = await db.tag.findMany({
             select: { id: true, name: true },
-            where: { name: { contains: keyword } },
+            where: { name: { contains: keyword, mode: 'insensitive' } },
             orderBy: { appearance: 'desc' },
             take: Number(limit) || 15
         })
@@ -40,6 +40,23 @@ export async function searchTags(req: Request, res: Response) {
 
 export async function trendingTags(req: ExtendedRequest, res: Response) {
     try {
+        let tagByPrefrence: Partial<Tag>[] = [],
+            tagByQuery: Partial<Tag>[] = [],
+            globallyTrending: Partial<Tag>[] = []
+
+        if (req.query.category) {
+            tagByQuery = await db.tag.findMany({
+                where: {
+                    categories: {
+                        some: { id: Number(req.query.category) }
+                    }
+                },
+                orderBy: { appearance: 'desc' },
+                take: 15,
+                select: { id: true, name: true }
+            })
+        }
+
         const user = req.session as User
 
         const prefrence = await db.userPrefrence.findFirst({
@@ -50,8 +67,7 @@ export async function trendingTags(req: ExtendedRequest, res: Response) {
         })
         const categories = prefrence?.categories.map(c => c.id)
 
-        let tagByPrefrence: Partial<Tag>[] = []
-        if (prefrence)
+        if (prefrence && tagByQuery.length < 15)
             tagByPrefrence = await db.tag.findMany({
                 where: {
                     categories: {
@@ -63,13 +79,17 @@ export async function trendingTags(req: ExtendedRequest, res: Response) {
                 select: { id: true, name: true }
             })
 
-        const globallyTrending = await db.tag.findMany({
-            orderBy: { appearance: 'desc' },
-            take: 15,
-            select: { id: true, name: true }
-        })
+        let combinedTags = tagByQuery.concat(tagByPrefrence)
+        combinedTags = removeDuplicateTag(combinedTags)
 
-        const combinedTags = tagByPrefrence.concat(globallyTrending)
+        if (combinedTags.length < 15)
+            globallyTrending = await db.tag.findMany({
+                orderBy: { appearance: 'desc' },
+                take: 15,
+                select: { id: true, name: true }
+            })
+
+        combinedTags.concat(globallyTrending)
         const tags = removeDuplicateTag(combinedTags)
 
         return res.json(tags)

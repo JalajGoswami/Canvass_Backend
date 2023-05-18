@@ -10,7 +10,7 @@ export async function createPost(req: ExtendedRequest, res: Response) {
     try {
         const body = createPostSchema.validateSync(req.body)
         const tags = body.tags.split(',').filter(Boolean)
-            .map(id => ({ id: Number(id) }))
+            .map(name => ({ name }))
 
         let image: string | undefined = undefined
         if (req.file) {
