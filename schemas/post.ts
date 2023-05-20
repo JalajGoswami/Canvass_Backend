@@ -7,4 +7,4 @@ export const createPostSchema = Yup.object({
         .required('Topic is required'),
     tags: Yup.string()
         .required('Tag is required')
-})
+}).noUnknown()

@@ -13,15 +13,17 @@ export async function createPost(req: ExtendedRequest, res: Response) {
             .map(name => ({ name }))
 
         let image: string | undefined = undefined
+        let aspect_ratio: number | undefined = undefined
         if (req.file) {
             image = await uploadFile(
                 req.file.path, req.file.filename, 'posts'
             )
+            aspect_ratio = Number(req.body.aspect_ratio)
         }
 
         const data = await db.post.create({
             data: {
-                ...body, image,
+                ...body, image, aspect_ratio,
                 tags: { connect: tags },
                 authorId: (req.session as User).id
             },

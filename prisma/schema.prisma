@@ -31,6 +31,17 @@ model User {
   dislikedPosts Post[]         @relation("DislikedPosts")
   savedPosts    Post[]         @relation("SavedPosts")
   prefrence     UserPrefrence?
+  follows       Follow[]       @relation("Follows")
+  followedBy    Follow[]       @relation("FollowedBy")
+}
+
+model Follow {
+  id           Int      @id @default(sequence())
+  user         User     @relation("Follows", fields: [userId], references: [id])
+  userId       Int
+  follows      User     @relation("FollowedBy", fields: [followedUser], references: [id])
+  followedUser Int
+  followedAt   DateTime @default(now())
 }
 
 model Post {
