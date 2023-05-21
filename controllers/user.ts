@@ -103,7 +103,17 @@ export async function updateProfile(req: ExtendedRequest, res: Response) {
 
 export async function getProfile(req: ExtendedRequest, res: Response) {
     const user = req.session as User
-    return res.json(user)
+    const profile = await db.user.findFirst({
+        where: { id: user.id },
+        select: {
+            _count: {
+                select: {
+                    createdPosts: true, follows: true, followedBy: true
+                }
+            }
+        }
+    })
+    return res.json({ ...user, ...profile?._count })
 }
 
 export async function createPrefrence(req: Request, res: Response) {
