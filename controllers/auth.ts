@@ -39,7 +39,8 @@ export async function verifyEmail(req: Request, res: Response) {
         await sendMail({
             to: email,
             subject: 'Email Verification Code',
-            text, html
+            text, html,
+            from: process.env.EMAIL_USER ?? ''
         })
         return res.json({ msg: 'Verification mail sent' })
     }
@@ -84,7 +85,7 @@ export async function login(req: Request, res: Response) {
             throw Error('Incorrect Password !')
 
         delete user.password
-        
+
         const accessToken = jwt.sign(
             { id: user.id, email },
             process.env.HASH_SECRET ?? 'secret'

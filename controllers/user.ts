@@ -110,10 +110,20 @@ export async function getProfile(req: ExtendedRequest, res: Response) {
                 select: {
                     createdPosts: true, follows: true, followedBy: true
                 }
-            }
+            },
+            likedPosts: { select: { id: true } },
+            dislikedPosts: { select: { id: true } },
+            savedPosts: { select: { id: true } }
         }
     })
-    return res.json({ ...user, ...profile?._count })
+    if (!profile)
+        return res.status(404).json({ error: 'Profile not found' })
+
+    const { _count, dislikedPosts, likedPosts, savedPosts } = profile
+    return res.json({
+        ...user, ..._count,
+        likedPosts, dislikedPosts, savedPosts
+    })
 }
 
 export async function createPrefrence(req: Request, res: Response) {
