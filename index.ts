@@ -1,9 +1,10 @@
 import express, { Express } from 'express'
 import dotenv from 'dotenv'
+console.time('dbColdStart')
 import db from './prisma/db'
 import router from './routes'
 import session from './middlewares/session'
-
+console.timeEnd('dbColdStart')
 dotenv.config()
 
 const PORT = process.env.PORT ?? 5000
