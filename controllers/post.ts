@@ -6,6 +6,7 @@ import ExtendedRequest from '../types/ExtendedRequest'
 import { Post, User } from '@prisma/client'
 import { uploadFile } from '../services/cloudStorage'
 import moment from 'moment'
+import { getIdParam } from '../utils/helpers'
 
 export async function createPost(req: ExtendedRequest, res: Response) {
     try {
@@ -42,13 +43,10 @@ export async function createPost(req: ExtendedRequest, res: Response) {
 
 export async function getPost(req: ExtendedRequest, res: Response) {
     try {
-        const { id } = req.params
-
-        if (!id || isNaN(Number(id)))
-            throw Error('Not a valid Id')
+        const id = getIdParam(req, 'id')
 
         const post = await db.post.findFirst({
-            where: { id: Number(id) },
+            where: { id },
             include: {
                 _count: {
                     select: { likedBy: true, dislikedBy: true }
@@ -183,15 +181,12 @@ export async function feedPosts(req: ExtendedRequest, res: Response) {
 
 export async function userPosts(req: ExtendedRequest, res: Response) {
     try {
-        const { id } = req.params
+        const id = getIdParam(req, 'id')
         let { page } = req.query
         page = isNaN(Number(page)) ? '1' : page
 
-        if (!id || isNaN(Number(id)))
-            throw Error('Not a valid Id')
-
         const count = await db.post.count({
-            where: { authorId: Number(id) }
+            where: { authorId: id }
         })
 
         const pages = {
@@ -202,7 +197,7 @@ export async function userPosts(req: ExtendedRequest, res: Response) {
             return res.json({ pages, data: [] })
 
         const data = await db.post.findMany({
-            where: { authorId: Number(id) },
+            where: { authorId: id },
             include: {
                 _count: {
                     select: { likedBy: true, dislikedBy: true }
@@ -214,6 +209,45 @@ export async function userPosts(req: ExtendedRequest, res: Response) {
         })
 
         return res.json({ pages, data })
+    }
+    catch (err) { handleError(res, err) }
+}
+
+export async function postActions(req: ExtendedRequest, res: Response) {
+    try {
+        const id = getIdParam(req, 'id')
+        const { action } = req.params
+        const userId = req.session?.id
+
+        const actionMapping: Record<string, string> = {
+            'like': 'likedBy',
+            'dislike': 'dislikedBy',
+            'save': 'savedBy'
+        }
+        const fieldName = actionMapping[action]
+        if (!fieldName)
+            throw Error('Not a valid action')
+
+        const post = await db.post.findFirst({
+            where: { id },
+            select: { [fieldName]: { select: { id: true } } }
+        })
+        if (!post)
+            throw Error('Post does not exist')
+
+        type Connections = { id: number }[]
+        const connected = (post[fieldName] as Connections)
+            .find(v => v.id == userId)
+
+        await db.post.update({
+            where: { id },
+            data: {
+                [fieldName]: connected ? { disconnect: { id: userId } }
+                    : { connect: { id: userId } }
+            }
+        })
+
+        return res.json({ msg: 'Success' })
     }
     catch (err) { handleError(res, err) }
 }

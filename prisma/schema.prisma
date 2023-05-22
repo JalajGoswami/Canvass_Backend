@@ -16,24 +16,26 @@ model EmailAddress {
 }
 
 model User {
-  id            Int            @id @default(sequence())
-  emailAddr     EmailAddress   @relation(fields: [email], references: [email])
-  email         String         @unique
-  user_name     String         @unique
-  full_name     String
-  password      String
-  profile_pic   String?
-  about         String?
-  website       String?
-  private       Boolean        @default(false)
-  created_at    DateTime       @default(now())
-  createdPosts  Post[]         @relation("CreatedPosts")
-  likedPosts    Post[]         @relation("LikedPosts")
-  dislikedPosts Post[]         @relation("DislikedPosts")
-  savedPosts    Post[]         @relation("SavedPosts")
-  prefrence     UserPrefrence?
-  follows       Follow[]       @relation("Follows")
-  followedBy    Follow[]       @relation("FollowedBy")
+  id                Int            @id @default(sequence())
+  emailAddr         EmailAddress   @relation(fields: [email], references: [email])
+  email             String         @unique
+  user_name         String         @unique
+  full_name         String
+  password          String
+  profile_pic       String?
+  about             String?
+  website           String?
+  private           Boolean        @default(false)
+  created_at        DateTime       @default(now())
+  createdPosts      Post[]         @relation("CreatedPosts")
+  likedPosts        Post[]         @relation("LikedPosts")
+  dislikedPosts     Post[]         @relation("DislikedPosts")
+  savedPosts        Post[]         @relation("SavedPosts")
+  prefrence         UserPrefrence?
+  follows           Follow[]       @relation("Follows")
+  followedBy        Follow[]       @relation("FollowedBy")
+  comments          Comment[]      @relation("CreatedComment")
+  mentionedComments Comment[]      @relation("CommentMention")
 }
 
 model Follow {
@@ -46,19 +48,20 @@ model Follow {
 }
 
 model Post {
-  id           Int      @id @default(sequence())
-  author       User     @relation("CreatedPosts", fields: [authorId], references: [id])
+  id           Int       @id @default(sequence())
+  author       User      @relation("CreatedPosts", fields: [authorId], references: [id])
   authorId     Int
   body         String
   image        String?
   aspect_ratio Float?
-  likedBy      User[]   @relation("LikedPosts")
-  dislikedBy   User[]   @relation("DislikedPosts")
-  savedBy      User[]   @relation("SavedPosts")
-  category     Category @relation(fields: [categoryId], references: [id])
+  likedBy      User[]    @relation("LikedPosts")
+  dislikedBy   User[]    @relation("DislikedPosts")
+  savedBy      User[]    @relation("SavedPosts")
+  category     Category  @relation(fields: [categoryId], references: [id])
   categoryId   Int
   tags         Tag[]
-  created_at   DateTime @default(now())
+  comments     Comment[]
+  created_at   DateTime  @default(now())
 }
 
 model UserPrefrence {
@@ -83,4 +86,19 @@ model Tag {
   categories Category[]
   posts      Post[]
   appearance Int        @default(1)
+}
+
+model Comment {
+  id         Int       @id @default(sequence())
+  post       Post      @relation(fields: [postId], references: [id])
+  postId     Int
+  body       String
+  author     User      @relation("CreatedComment", fields: [authorId], references: [id])
+  authorId   Int
+  parent     Comment   @relation("replies", fields: [parentId], references: [id])
+  replies    Comment[] @relation("replies")
+  parentId   Int
+  replyTo    User?     @relation("CommentMention", fields: [replyToId], references: [id])
+  replyToId  Int?
+  created_at DateTime  @default(now())
 }
