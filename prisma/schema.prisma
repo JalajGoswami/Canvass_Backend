@@ -16,26 +16,30 @@ model EmailAddress {
 }
 
 model User {
-  id                Int            @id @default(sequence())
-  emailAddr         EmailAddress   @relation(fields: [email], references: [email])
-  email             String         @unique
-  user_name         String         @unique
-  full_name         String
-  password          String
-  profile_pic       String?
-  about             String?
-  website           String?
-  private           Boolean        @default(false)
-  created_at        DateTime       @default(now())
-  createdPosts      Post[]         @relation("CreatedPosts")
-  likedPosts        Post[]         @relation("LikedPosts")
-  dislikedPosts     Post[]         @relation("DislikedPosts")
-  savedPosts        Post[]         @relation("SavedPosts")
-  prefrence         UserPrefrence?
-  follows           Follow[]       @relation("Follows")
-  followedBy        Follow[]       @relation("FollowedBy")
-  comments          Comment[]      @relation("CreatedComment")
-  mentionedComments Comment[]      @relation("CommentMention")
+  id                  Int            @id @default(sequence())
+  emailAddr           EmailAddress   @relation(fields: [email], references: [email])
+  email               String         @unique
+  user_name           String         @unique
+  full_name           String
+  password            String
+  profile_pic         String?
+  about               String?
+  website             String?
+  private             Boolean        @default(false)
+  created_at          DateTime       @default(now())
+  createdPosts        Post[]         @relation("CreatedPosts")
+  likedPosts          Post[]         @relation("LikedPosts")
+  dislikedPosts       Post[]         @relation("DislikedPosts")
+  savedPosts          Post[]         @relation("SavedPosts")
+  prefrence           UserPrefrence?
+  follows             Follow[]       @relation("Follows")
+  followedBy          Follow[]       @relation("FollowedBy")
+  comments            Comment[]      @relation("CreatedComment")
+  mentionedComments   Comment[]      @relation("CommentMention")
+  sentMessages        Message[]      @relation("SentMessage")
+  receivedMessages    Message[]      @relation("ReceivedMessage")
+  notifications       Notification[]
+  taggedNotifications Notification[] @relation("TaggedNotification")
 }
 
 model Follow {
@@ -48,20 +52,21 @@ model Follow {
 }
 
 model Post {
-  id           Int       @id @default(sequence())
-  author       User      @relation("CreatedPosts", fields: [authorId], references: [id])
-  authorId     Int
-  body         String
-  image        String?
-  aspect_ratio Float?
-  likedBy      User[]    @relation("LikedPosts")
-  dislikedBy   User[]    @relation("DislikedPosts")
-  savedBy      User[]    @relation("SavedPosts")
-  category     Category  @relation(fields: [categoryId], references: [id])
-  categoryId   Int
-  tags         Tag[]
-  comments     Comment[]
-  created_at   DateTime  @default(now())
+  id            Int            @id @default(sequence())
+  author        User           @relation("CreatedPosts", fields: [authorId], references: [id])
+  authorId      Int
+  body          String
+  image         String?
+  aspect_ratio  Float?
+  likedBy       User[]         @relation("LikedPosts")
+  dislikedBy    User[]         @relation("DislikedPosts")
+  savedBy       User[]         @relation("SavedPosts")
+  category      Category       @relation(fields: [categoryId], references: [id])
+  categoryId    Int
+  tags          Tag[]
+  comments      Comment[]
+  created_at    DateTime       @default(now())
+  notifications Notification[]
 }
 
 model UserPrefrence {
@@ -89,16 +94,45 @@ model Tag {
 }
 
 model Comment {
-  id         Int       @id @default(sequence())
-  post       Post      @relation(fields: [postId], references: [id])
-  postId     Int
-  body       String
-  author     User      @relation("CreatedComment", fields: [authorId], references: [id])
-  authorId   Int
-  parent     Comment   @relation("replies", fields: [parentId], references: [id])
-  replies    Comment[] @relation("replies")
-  parentId   Int
-  replyTo    User?     @relation("CommentMention", fields: [replyToId], references: [id])
-  replyToId  Int?
-  created_at DateTime  @default(now())
+  id            Int            @id @default(sequence())
+  post          Post           @relation(fields: [postId], references: [id])
+  postId        Int
+  body          String
+  author        User           @relation("CreatedComment", fields: [authorId], references: [id])
+  authorId      Int
+  parent        Comment        @relation("replies", fields: [parentId], references: [id])
+  replies       Comment[]      @relation("replies")
+  parentId      Int
+  replyTo       User?          @relation("CommentMention", fields: [replyToId], references: [id])
+  replyToId     Int?
+  created_at    DateTime       @default(now())
+  notifications Notification[]
+}
+
+model Message {
+  id          Int       @id @default(sequence())
+  from        User      @relation("SentMessage", fields: [fromId], references: [id])
+  fromId      Int
+  to          User      @relation("ReceivedMessage", fields: [toId], references: [id])
+  toId        Int
+  messageType String
+  body        String
+  status      String
+  seen_at     DateTime?
+  created_at  DateTime  @default(now())
+}
+
+model Notification {
+  id           Int      @id @default(sequence())
+  user         User     @relation(fields: [userId], references: [id])
+  userId       Int
+  body         String
+  type         String
+  taggedUser   User     @relation("TaggedNotification", fields: [taggedUserId], references: [id])
+  taggedUserId Int
+  post         Post?    @relation(fields: [postId], references: [id])
+  postId       Int?
+  comment      Comment? @relation(fields: [commentId], references: [id])
+  commentId    Int?
+  created_at   DateTime @default(now())
 }
