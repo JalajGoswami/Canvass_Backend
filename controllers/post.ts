@@ -71,6 +71,11 @@ export async function feedPosts(req: ExtendedRequest, res: Response) {
             _count: {
                 likedBy: number;
                 dislikedBy: number;
+                comments: number;
+            };
+            author: {
+                user_name: string;
+                profile_pic: string | null;
             };
         })[]
 
@@ -137,7 +142,12 @@ export async function feedPosts(req: ExtendedRequest, res: Response) {
                 },
                 include: {
                     _count: {
-                        select: { likedBy: true, dislikedBy: true }
+                        select: {
+                            likedBy: true, dislikedBy: true, comments: true
+                        }
+                    },
+                    author: {
+                        select: { user_name: true, profile_pic: true }
                     }
                 },
                 orderBy: { created_at: 'desc' },
@@ -161,7 +171,12 @@ export async function feedPosts(req: ExtendedRequest, res: Response) {
                 distinct: ['id'],
                 include: {
                     _count: {
-                        select: { likedBy: true, dislikedBy: true }
+                        select: {
+                            likedBy: true, dislikedBy: true, comments: true
+                        }
+                    },
+                    author: {
+                        select: { user_name: true, profile_pic: true }
                     }
                 },
                 orderBy: { likedBy: { _count: 'desc' } },
