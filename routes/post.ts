@@ -13,7 +13,7 @@ router.post(
 )
 router.get('/feed', feedPosts)
 router.get('/user/:id', userPosts)
-router.get(':id/:action', postActions)
+router.get('/:id/:action', postActions)
 router.get('/:id', getPost)
 
 export default router
