@@ -215,7 +215,12 @@ export async function userPosts(req: ExtendedRequest, res: Response) {
             where: { authorId: id },
             include: {
                 _count: {
-                    select: { likedBy: true, dislikedBy: true }
+                    select: {
+                        likedBy: true, dislikedBy: true, comments: true
+                    }
+                },
+                author: {
+                    select: { user_name: true, profile_pic: true }
                 }
             },
             orderBy: { created_at: 'desc' },
