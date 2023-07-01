@@ -5,7 +5,10 @@
   "scripts": {
     "start": "node build/index.js",
     "dev": "ts-node-dev --respawn --transpile-only index.ts",
-    "build": "prisma generate && tsc"
+    "build": "prisma generate && tsc",
+    "buildSocket": "prisma generate && tsc events/index.ts --outDir build",
+    "devSocket": "ts-node-dev --respawn --transpile-only events/index.ts",
+    "startSocket": "node build/events/index.js"
   },
   "author": "Jalaj Goswami <jalajgoswami33@gmail.com>",
   "license": "MIT",
