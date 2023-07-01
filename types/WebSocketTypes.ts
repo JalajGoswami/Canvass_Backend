@@ -1,12 +1,15 @@
 import { Server, Socket } from 'socket.io'
 
 interface ServerToClientEvents {
-    basicEmit: (msg: string) => void;
-    withAck: (d: string, callback: (e: number) => void) => void;
+    user_joined: (id: number) => void;
+    user_left: (id?: number) => void;
+    active_users: (users: string) => void;
+    message_received: (message: any) => void;
 }
 
 interface ClientToServerEvents {
-    new_user: (id: string) => void;
+    new_user: (id: number) => void;
+    message_sent: (to: number, msgId: number) => void;
 }
 
 interface InterServerEvents {
