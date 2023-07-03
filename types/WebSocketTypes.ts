@@ -2,14 +2,16 @@ import { Server, Socket } from 'socket.io'
 
 interface ServerToClientEvents {
     user_joined: (id: number) => void;
-    user_left: (id?: number) => void;
+    user_left: (id: number) => void;
     active_users: (users: string) => void;
     message_received: (message: any) => void;
+    message_seen: (from: number, msgIds: string) => void;
 }
 
 interface ClientToServerEvents {
     new_user: (id: number) => void;
     message_sent: (to: number, msgId: number) => void;
+    message_seen: (from: number, msgIds: string) => void;
 }
 
 interface InterServerEvents {

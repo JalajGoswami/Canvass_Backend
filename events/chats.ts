@@ -37,9 +37,20 @@ export default function registerChatHandlers(socket: WS_Socket) {
             .emit('message_received', message)
     })
 
+    socket.on('message_seen', async (from, msgIds) => {
+        await db.message.updateMany({
+            where: { id: { in: msgIds.split(',').map(Number) } },
+            data: { status: 'seen' }
+        })
+
+        const user = activeUsers.get(socket.id) as number
+        socket.to('room.' + from).emit('message_seen', user, msgIds)
+    })
+
     socket.on('disconnect', () => {
-        socket.broadcast.emit('user_left', activeUsers.get(socket.id))
-        socket.leave('room.' + activeUsers.get(socket.id))
+        const user = activeUsers.get(socket.id) as number
+        socket.broadcast.emit('user_left', user)
+        socket.leave('room.' + user)
 
         activeUsers.delete(socket.id)
     })
