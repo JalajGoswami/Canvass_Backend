@@ -5,14 +5,23 @@ const activeUsers: Map<string, number> = new Map()
 
 export default function registerChatHandlers(socket: WS_Socket) {
 
-    socket.on('new_user', id => {
+    socket.on('new_user', async id => {
         id = Number(id)
         activeUsers.set(socket.id, id)
 
         socket.broadcast.emit('user_joined', id)
 
-        const users = Array.from(activeUsers.values()).toString()
-        socket.emit('active_users', users)
+        const followings = (await db.follow.findMany({
+            where: { followedUser: id },
+            select: { userId: true }
+        })).map(v => v.userId)
+
+        let users: number[] = []
+        activeUsers.forEach(user =>
+            followings.includes(user) && users.push(user)
+        )
+
+        socket.emit('active_users', users.toString())
 
         socket.join('room.' + id)
     })

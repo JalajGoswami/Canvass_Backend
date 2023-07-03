@@ -3,6 +3,7 @@ import { handleError } from '../services/errorHandlers'
 import ExtendedRequest from '../types/ExtendedRequest'
 import { User } from '@prisma/client'
 import db from '../prisma/db'
+import { getIdParam } from '../utils/helpers'
 
 export async function getConversations(req: ExtendedRequest, res: Response) {
     try {
@@ -31,6 +32,30 @@ export async function getConversations(req: ExtendedRequest, res: Response) {
         })
 
         return res.json(result)
+    }
+    catch (err) { handleError(res, err) }
+}
+
+export async function getMessages(req: ExtendedRequest, res: Response) {
+    try {
+        const user = req.session as User
+        const otherUser = getIdParam(req, 'id')
+        let { page } = req.query
+        let pageNo = isNaN(Number(page)) ? 1 : Number(page)
+
+        const messages = await db.message.findMany({
+            where: {
+                OR: [
+                    { to: user, fromId: otherUser },
+                    { from: user, toId: otherUser }
+                ]
+            },
+            orderBy: { created_at: 'desc' },
+            take: 20,
+            skip: (pageNo - 1) * 20
+        })
+
+        return res.json(messages)
     }
     catch (err) { handleError(res, err) }
 }
