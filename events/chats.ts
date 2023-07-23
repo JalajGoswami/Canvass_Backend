@@ -1,9 +1,8 @@
 import db from '../prisma/db'
-import { WS_Socket } from '../types/WebSocketTypes'
+import { Store, WS_Socket } from '../types/WebSocketTypes'
 
-const activeUsers: Map<string, number> = new Map()
-
-export default function registerChatHandlers(socket: WS_Socket) {
+export default function registerChatHandlers(socket: WS_Socket, store: Store) {
+    const activeUsers = store.activeUsers
 
     socket.on('new_user', async id => {
         id = Number(id)

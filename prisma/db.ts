@@ -5,8 +5,8 @@ declare global {
 }
 
 if (!global.prisma)
-    global.prisma = new PrismaClient()
-    
+  global.prisma = new PrismaClient()
+
 const db = global.prisma
 
 export default db
