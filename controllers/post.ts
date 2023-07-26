@@ -237,7 +237,7 @@ export async function postActions(req: ExtendedRequest, res: Response) {
     try {
         const id = getIdParam(req, 'id')
         const { action } = req.params
-        const userId = req.session?.id
+        const userId = req.session?.id as number
 
         const actionMapping: Record<string, string> = {
             'like': 'likedBy',
@@ -250,7 +250,10 @@ export async function postActions(req: ExtendedRequest, res: Response) {
 
         const post = await db.post.findFirst({
             where: { id },
-            select: { [fieldName]: { select: { id: true } } }
+            select: {
+                [fieldName]: { select: { id: true } },
+                authorId: true
+            }
         })
         if (!post)
             throw Error('Post does not exist')
@@ -267,7 +270,24 @@ export async function postActions(req: ExtendedRequest, res: Response) {
             }
         })
 
-        return res.json({ msg: 'Success' })
+        if (action === 'like') {
+            const notification = await db.notification.create({
+                data: {
+                    type: 'like',
+                    userId: post.authorId,
+                    postId: id,
+                    taggedUserId: userId
+                },
+                include: {
+                    taggedUser: { select: { user_name: true } },
+                    post: { select: { image: true } },
+                    comment: { select: { body: true } }
+                }
+            })
+            return res.json({ msg: 'Success', notification })
+        }
+
+        return res.json({ msg: 'Success', notification: null })
     }
     catch (err) { handleError(res, err) }
 }
